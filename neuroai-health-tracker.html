@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroAI & Health — 30-Day Study Tracker</title>
+<style>
+  :root{
+    --ink:#16232B;
+    --paper:#F1F3EF;
+    --paper-raised:#FFFFFF;
+    --teal:#0E7C7B;
+    --teal-dim:#0E7C7B33;
+    --amber:#E2A83D;
+    --slate:#5C6B73;
+    --line:#D8DDD6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* Header */
+  header{margin-bottom:28px;}
+  .eyebrow{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--teal);margin:0 0 8px;
+  }
+  h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:30px;line-height:1.15;margin:0 0 10px;font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{color:var(--slate);font-size:15px;margin:0 0 22px;max-width:56ch;}
+
+  /* Synapse progress chain — signature element */
+  .synapse-card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px 18px 16px;
+    margin-bottom:26px;
+  }
+  .synapse-stats{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:14px;flex-wrap:wrap;gap:6px;
+  }
+  .stat-num{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:26px;font-weight:600;color:var(--ink);
+  }
+  .stat-label{font-size:12px;color:var(--slate);letter-spacing:0.02em;}
+  .stat-group{display:flex;gap:22px;}
+  .synapse-chain{
+    display:flex;align-items:center;flex-wrap:wrap;gap:0;
+    padding:4px 0 2px;
+  }
+  .node-unit{display:flex;align-items:center;}
+  .node{
+    width:15px;height:15px;border-radius:50%;
+    border:2px solid var(--line);background:var(--paper-raised);
+    cursor:pointer;flex-shrink:0;
+    transition:transform .15s ease, background .2s ease, border-color .2s ease;
+  }
+  .node:hover{transform:scale(1.25);}
+  .node.done{background:var(--teal);border-color:var(--teal);}
+  .node.today{border-color:var(--amber);border-width:2.5px;}
+  .synapse-link{
+    width:9px;height:2px;background:var(--line);flex-shrink:0;
+    transition:background .2s ease;
+  }
+  .synapse-link.fired{background:var(--amber);}
+  .synapse-hint{font-size:11.5px;color:var(--slate);margin-top:10px;}
+
+  /* Week cards */
+  .week{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:14px;
+    margin-bottom:18px;
+    overflow:hidden;
+  }
+  .week-head{
+    padding:16px 18px;
+    display:flex;justify-content:space-between;align-items:flex-start;
+    gap:12px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .week-head-left{flex:1;min-width:0;}
+  .week-range{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px;color:var(--teal);letter-spacing:0.06em;text-transform:uppercase;
+    margin:0 0 4px;
+  }
+  .week-title{
+    font-family:Georgia,serif;font-size:18px;font-weight:600;margin:0 0 4px;
+  }
+  .week-thesis{font-size:13.5px;color:var(--slate);margin:0;}
+  .chevron{
+    color:var(--slate);font-size:18px;flex-shrink:0;margin-top:2px;
+    transition:transform .2s ease;
+  }
+  .week.open .chevron{transform:rotate(90deg);}
+  .week-body{
+    max-height:0;overflow:hidden;
+    transition:max-height .25s ease;
+    border-top:1px solid transparent;
+  }
+  .week.open .week-body{border-top:1px solid var(--line);}
+  .week-body-inner{padding:16px 18px 18px;}
+
+  .foci{list-style:none;margin:0 0 16px;padding:0;}
+  .foci li{
+    display:flex;gap:10px;font-size:13.5px;margin-bottom:8px;color:var(--ink);
+  }
+  .foci .days{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color:var(--teal);flex-shrink:0;width:64px;font-size:12px;padding-top:1px;
+  }
+
+  .section-label{
+    font-size:11px;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--slate);margin:16px 0 8px;font-weight:600;
+  }
+  .links{list-style:none;margin:0;padding:0;}
+  .links li{margin-bottom:9px;}
+  .links a{
+    color:var(--ink);text-decoration:none;font-size:13.5px;
+    border-bottom:1px solid var(--teal-dim);
+    display:inline;
+  }
+  .links a:hover{border-bottom-color:var(--teal);color:var(--teal);}
+  .link-note{display:block;font-size:12px;color:var(--slate);margin-top:1px;}
+
+  .synthesis-box{
+    margin-top:16px;padding:12px 14px;
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    display:flex;gap:10px;align-items:flex-start;cursor:pointer;
+  }
+  .synthesis-box input{margin-top:2px;accent-color:var(--teal);flex-shrink:0;}
+  .synthesis-box .txt{font-size:13px;}
+  .synthesis-box .txt b{display:block;margin-bottom:2px;}
+  .synthesis-box .txt span{color:var(--slate);}
+
+  footer{margin-top:24px;font-size:12px;color:var(--slate);text-align:center;}
+
+  @media (max-width:480px){
+    h1{font-size:25px;}
+    .wrap{padding:20px 14px 70px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">30-day self-study · NeuroAI &amp; Health</p>
+    <h1>How brains and machines learn from each other</h1>
+    <p class="subtitle">A month of daily reading and writing tracing neuroscience's influence on AI, AI's return influence on neuroscience, and where both land in clinical care and in nursing &amp; midwifery education.</p>
+  </header>
+
+  <div class="synapse-card">
+    <div class="synapse-stats">
+      <div class="stat-group">
+        <div>
+          <div class="stat-num" id="statDone">0</div>
+          <div class="stat-label">days logged</div>
+        </div>
+        <div>
+          <div class="stat-num" id="statStreak">0</div>
+          <div class="stat-label">day streak</div>
+        </div>
+        <div>
+          <div class="stat-num" id="statPct">0%</div>
+          <div class="stat-label">of month</div>
+        </div>
+      </div>
+    </div>
+    <div class="synapse-chain" id="synapseChain"></div>
+    <p class="synapse-hint">Tap a node after each day's 40 minutes. Each ring is a day; the line between two completed days lights up — the chain is meant to look like connections forming, same as the material you're reading.</p>
+  </div>
+
+  <div id="weeksRoot"></div>
+
+  <footer>Progress saves automatically on this device.</footer>
+</div>
+
+<script>
+const STORAGE_KEY = "neuroai-health-tracker-v1";
+const TOTAL_DAYS = 30;
+
+const weeks = [
+  {
+    range: "Days 1–7",
+    title: "Neuroscience → AI",
+    thesis: "How early AI borrowed its core ideas from theories of the brain — and where the borrowing broke down.",
+    dayStart: 1, dayEnd: 7,
+    foci: [
+      ["1–3", "Perceptrons and early neural nets: what they took from real neurons, what they simplified away."],
+      ["4–6", "From single neurons to deep learning: convolutional nets, attention, and their loose biological analogues."],
+      ["7", "Rest / write your own summary: what neuroscience actually gave AI, and what got lost in translation."]
+    ],
+    links: [
+      ["Hassabis et al., \"Neuroscience-Inspired Artificial Intelligence\" (Neuron, 2017)", "https://www.cell.com/fulltext/S0896-6273(17)30509-3", "The foundational survey of the AI–neuroscience relationship — start here."],
+      ["Sadeh & Clopath, \"The emergence of NeuroAI\" (Nature Reviews Neuroscience, 2025)", "https://www.nature.com/articles/s41583-025-00954-x", "Short, current framing of the field."],
+      ["\"NeuroAI: A field born from the symbiosis between neuroscience, AI\" (The Transmitter)", "https://www.thetransmitter.org/neuroai/neuroai-a-field-born-from-the-symbiosis-between-neuroscience-ai/", "Accessible essay series, good for a non-technical first pass."],
+      ["Zador et al., \"Catalyzing next-generation AI through NeuroAI\" (Nature Communications, 2023)", "https://www.nature.com/articles/s41467-023-37180-x", "Makes the historical case in more technical depth."]
+    ],
+    synthesisTitle: "Week 1 synthesis",
+    synthesisNote: "Write ~1 page: what did neuroscience actually give AI, in your own words?"
+  },
+  {
+    range: "Days 8–14",
+    title: "AI → Neuroscience",
+    thesis: "The return trip — how deep learning models are now used as tools to understand the brain itself.",
+    dayStart: 8, dayEnd: 14,
+    foci: [
+      ["8–10", "\"NeuroAI\" as a two-way field: using trained networks as models of visual and auditory cortex."],
+      ["11–13", "Predictive coding, comparing artificial and biological representations, what a good model of a brain area even means."],
+      ["14", "Rest / write your own summary: how is AI now a lens for studying the brain?"]
+    ],
+    links: [
+      ["Sadeh & Clopath, \"The emergence of NeuroAI\" (Nature Reviews Neuroscience, 2025)", "https://www.nature.com/articles/s41583-025-00954-x", "Revisit — this one covers both directions of the relationship."],
+      ["\"Toward Next-Generation Artificial Intelligence: Catalyzing the NeuroAI Revolution\" (arXiv)", "https://arxiv.org/pdf/2210.08340", "Denser, more technical — good once week 1 vocabulary has settled."],
+      ["\"Brain-inspired Artificial Intelligence: A Comprehensive Review\" (arXiv)", "https://arxiv.org/pdf/2408.14811", "Wide-angle review covering structure- and behavior-inspired approaches."],
+      ["Google Scholar — search \"NeuroAI review\"", "https://scholar.google.com/scholar?q=NeuroAI+review", "Use to chase citations from the papers above into more recent work."]
+    ],
+    synthesisTitle: "Week 2 synthesis",
+    synthesisNote: "Write ~1 page: what does AI currently teach us about how brains work?"
+  },
+  {
+    range: "Days 15–21",
+    title: "AI in healthcare",
+    thesis: "Where AI is actually deployed in clinical practice today, and where the claims outrun the evidence.",
+    dayStart: 15, dayEnd: 21,
+    foci: [
+      ["15–17", "Diagnostics and imaging: cancer detection, cardiac imaging, dermatology — where AI performs well."],
+      ["18–20", "Clinical decision support, LLMs in documentation, and the recurring problems: bias, hallucination, validation."],
+      ["21", "Rest / write your own summary: current state of AI in clinical practice, real vs. hyped."]
+    ],
+    links: [
+      ["\"AI in healthcare: applications, challenges, and future directions\" (Frontiers in Digital Health, 2025)", "https://www.frontiersin.org/journals/digital-health/articles/10.3389/fdgth.2025.1644041/full", "Broad, current, multidisciplinary narrative review — a strong spine for the week."],
+      ["Same review, PMC version (free full text)", "https://pmc.ncbi.nlm.nih.gov/articles/PMC12645148/", "Use if the Frontiers link is paywalled on your connection."],
+      ["\"Artificial Intelligence in Healthcare: A Narrative Review of Recent Clinical Applications\" (Dove Medical Press, 2025)", "https://www.dovepress.com/artificial-intelligence-in-healthcare-a-narrative-review-of-recent-cli-peer-reviewed-fulltext-article-JHL", "Focused on LLMs and implementation in hospitals — good pairing with the piece above."],
+      ["\"Generative AI in clinical (2020–2025): a mini-review\" (Frontiers in Digital Health, 2025)", "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12620437/", "Shorter — radiology, dermatology, genetics, EHR analysis."],
+      ["\"The Application of Artificial Intelligence in Healthcare Practice: An Umbrella Review\"", "https://www.medrxiv.org/content/10.1101/2025.10.05.25337356.full.pdf", "A review-of-reviews — useful for seeing the whole landscape at once."]
+    ],
+    synthesisTitle: "Week 3 synthesis",
+    synthesisNote: "Write ~1 page: what's the honest current state of clinical AI?"
+  },
+  {
+    range: "Days 22–30",
+    title: "AI in nursing & midwifery education",
+    thesis: "The most specific and most practice-relevant thread, given your own background — evaluated critically, not just summarized.",
+    dayStart: 22, dayEnd: 30,
+    foci: [
+      ["22–24", "AI in nursing and midwifery practice broadly: what's actually been studied vs. proposed."],
+      ["25–27", "AI in nursing education specifically: simulation, adaptive tutoring, chatbots, and educator readiness."],
+      ["28–30", "AI in midwifery education specifically, then final write-up — your most substantial piece of the month."]
+    ],
+    links: [
+      ["O'Connor et al., \"Artificial intelligence in nursing and midwifery: A systematic review\" (J Clin Nursing, 2023)", "https://onlinelibrary.wiley.com/doi/abs/10.1111/jocn.16478", "The core systematic review of the whole space — start the week here."],
+      ["Same paper on PubMed (abstract + free elements)", "https://pubmed.ncbi.nlm.nih.gov/35908207/", "Use if the Wiley link is paywalled."],
+      ["\"The Impact of Artificial Intelligence (AI) on Midwifery Education: A Scoping Review\" (PMC)", "https://pmc.ncbi.nlm.nih.gov/articles/PMC11171549/", "Directly on-topic for midwifery education — free full text."],
+      ["\"Artificial intelligence in nursing education: A scoping review\" (ScienceDirect, 2024)", "https://www.sciencedirect.com/science/article/abs/pii/S1471595324002774", "Nursing-education-specific companion to the midwifery scoping review."],
+      ["\"The Contribution of Artificial Intelligence in Nursing Education: A Scoping Review\" (PMC, 2025)", "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12389495/", "More recent scoping review, free full text."],
+      ["\"Advancing Nursing Through Artificial Intelligence: A Systematic Literature Review\" (PMC, 2025)", "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12848953/", "Newest of the set — nursing practice, education, and workforce well-being."]
+    ],
+    synthesisTitle: "Week 4 synthesis — final write-up",
+    synthesisNote: "Your most substantial piece: what does the evidence actually say about AI in nursing/midwifery education, and what's still just aspiration?"
+  }
+];
+
+// ---------- render weeks ----------
+const root = document.getElementById("weeksRoot");
+weeks.forEach((w, wi) => {
+  const el = document.createElement("div");
+  el.className = "week";
+  el.innerHTML = `
+    <div class="week-head" data-idx="${wi}">
+      <div class="week-head-left">
+        <p class="week-range">${w.range}</p>
+        <h2 class="week-title">${w.title}</h2>
+        <p class="week-thesis">${w.thesis}</p>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+    <div class="week-body">
+      <div class="week-body-inner">
+        <p class="section-label">Daily focus</p>
+        <ul class="foci">
+          ${w.foci.map(f => `<li><span class="days">${f[0]}</span><span>${f[1]}</span></li>`).join("")}
+        </ul>
+        <p class="section-label">Reading</p>
+        <ul class="links">
+          ${w.links.map(l => `<li><a href="${l[1]}" target="_blank" rel="noopener">${l[0]}</a><span class="link-note">${l[2]}</span></li>`).join("")}
+        </ul>
+        <label class="synthesis-box">
+          <input type="checkbox" data-synthesis="${wi}">
+          <span class="txt"><b>${w.synthesisTitle}</b><span>${w.synthesisNote}</span></span>
+        </label>
+      </div>
+    </div>
+  `;
+  root.appendChild(el);
+});
+
+// accordion open/close
+document.querySelectorAll(".week-head").forEach(h => {
+  h.addEventListener("click", () => {
+    const week = h.closest(".week");
+    const body = week.querySelector(".week-body");
+    const isOpen = week.classList.contains("open");
+    document.querySelectorAll(".week").forEach(w2 => {
+      w2.classList.remove("open");
+      w2.querySelector(".week-body").style.maxHeight = null;
+    });
+    if (!isOpen) {
+      week.classList.add("open");
+      body.style.maxHeight = body.scrollHeight + 300 + "px";
+    }
+  });
+});
+
+// ---------- synapse chain ----------
+const chain = document.getElementById("synapseChain");
+let state = { days: {}, synthesis: {} };
+
+function renderChain(){
+  chain.innerHTML = "";
+  for(let d=1; d<=TOTAL_DAYS; d++){
+    const unit = document.createElement("div");
+    unit.className = "node-unit";
+    const node = document.createElement("div");
+    node.className = "node" + (state.days[d] ? " done" : "");
+    node.title = "Day " + d;
+    node.dataset.day = d;
+    node.addEventListener("click", () => toggleDay(d));
+    unit.appendChild(node);
+    if(d < TOTAL_DAYS){
+      const link = document.createElement("div");
+      link.className = "synapse-link" + (state.days[d] && state.days[d+1] ? " fired" : "");
+      unit.appendChild(link);
+    }
+    chain.appendChild(unit);
+  }
+  updateStats();
+}
+
+function updateStats(){
+  const doneDays = Object.keys(state.days).filter(d => state.days[d]).map(Number);
+  const count = doneDays.length;
+  document.getElementById("statDone").textContent = count;
+  document.getElementById("statPct").textContent = Math.round((count/TOTAL_DAYS)*100) + "%";
+
+  // current streak counting back from highest consecutive run ending at latest done day
+  let streak = 0;
+  if(count > 0){
+    const maxDay = Math.max(...doneDays);
+    let d = maxDay;
+    while(state.days[d]){ streak++; d--; }
+  }
+  document.getElementById("statStreak").textContent = streak;
+}
+
+function toggleDay(d){
+  state.days[d] = !state.days[d];
+  renderChain();
+  save();
+}
+
+async function save(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+  }catch(e){ console.error("save failed", e); }
+}
+
+async function load(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      state = JSON.parse(res.value);
+    }
+  }catch(e){
+    // no existing data yet — fine
+  }
+  renderChain();
+  // restore synthesis checkboxes
+  document.querySelectorAll("[data-synthesis]").forEach(cb => {
+    const idx = cb.dataset.synthesis;
+    cb.checked = !!(state.synthesis && state.synthesis[idx]);
+    cb.addEventListener("change", () => {
+      if(!state.synthesis) state.synthesis = {};
+      state.synthesis[idx] = cb.checked;
+      save();
+    });
+  });
+}
+
+load();
+</script>
+</body>
+</html>
